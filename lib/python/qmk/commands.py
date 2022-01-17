@@ -49,12 +49,9 @@ def create_make_target(target, dry_run=False, parallel=1, **env_vars):
 
         A command that can be run to make the specified keyboard and keymap
     """
-    env = []
     make_cmd = _find_make()
 
-    for key, value in env_vars.items():
-        env.append(f'{key}={value}')
-
+    env = [f'{key}={value}' for key, value in env_vars.items()]
     return [make_cmd, *(['-n'] if dry_run else []), *get_make_parallel_args(parallel), *env, target]
 
 
@@ -110,10 +107,9 @@ def get_git_version(current_time, repo_dir='.', check_dir='.'):
         if git_describe.returncode == 0:
             return git_describe.stdout.strip()
 
-        else:
-            cli.log.warn(f'"{" ".join(git_describe_cmd)}" returned error code {git_describe.returncode}')
-            print(git_describe.stderr)
-            return current_time
+        cli.log.warn(f'"{" ".join(git_describe_cmd)}" returned error code {git_describe.returncode}')
+        print(git_describe.stderr)
+        return current_time
 
     return current_time
 
@@ -139,11 +135,7 @@ def get_make_parallel_args(parallel=1):
 def create_version_h(skip_git=False, skip_all=False):
     """Generate version.h contents
     """
-    if skip_all:
-        current_time = "1970-01-01-00:00:00"
-    else:
-        current_time = strftime(time_fmt)
-
+    current_time = "1970-01-01-00:00:00" if skip_all else strftime(time_fmt)
     if skip_git:
         git_version = "NA"
         chibios_version = "NA"
@@ -153,7 +145,7 @@ def create_version_h(skip_git=False, skip_all=False):
         chibios_version = get_git_version(current_time, "chibios", "os")
         chibios_contrib_version = get_git_version(current_time, "chibios-contrib", "os")
 
-    version_h_lines = f"""/* This file was automatically generated. Do not edit or copy.
+    return f"""/* This file was automatically generated. Do not edit or copy.
  */
 
 #pragma once
@@ -163,8 +155,6 @@ def create_version_h(skip_git=False, skip_all=False):
 #define CHIBIOS_VERSION "{chibios_version}"
 #define CHIBIOS_CONTRIB_VERSION "{chibios_contrib_version}"
 """
-
-    return version_h_lines
 
 
 def compile_configurator_json(user_keymap, bootloader=None, parallel=1, **env_vars):

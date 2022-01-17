@@ -150,7 +150,7 @@ def rules_mk(keyboard):
     keyboard = Path(resolve_keyboard(keyboard))
     rules = parse_rules_mk_file(cur_dir / keyboard / 'rules.mk')
 
-    for i, dir in enumerate(keyboard.parts):
+    for dir in keyboard.parts:
         cur_dir = cur_dir / dir
         rules = parse_rules_mk_file(cur_dir / 'rules.mk', rules)
 
@@ -160,7 +160,7 @@ def rules_mk(keyboard):
 def render_layout(layout_data, render_ascii, key_labels=None):
     """Renders a single layout.
     """
-    textpad = [array('u', ' ' * 200) for x in range(100)]
+    textpad = [array('u', ' ' * 200) for _ in range(100)]
     style = 'ascii' if render_ascii else 'unicode'
     box_chars = BOX_DRAWING_CHARACTERS[style]
 
@@ -198,10 +198,11 @@ def render_layout(layout_data, render_ascii, key_labels=None):
             textpad[y + i + 2][x:x + w] = mid_line
         textpad[y + h - 1][x:x + w] = bot_line
 
-    lines = []
-    for line in textpad:
-        if line.tounicode().strip():
-            lines.append(line.tounicode().rstrip())
+    lines = [
+        line.tounicode().rstrip()
+        for line in textpad
+        if line.tounicode().strip()
+    ]
 
     return '\n'.join(lines)
 

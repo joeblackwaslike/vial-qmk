@@ -60,7 +60,7 @@ def generate_layouts(cli):
             continue
 
         layout_keys = []
-        layout_matrix = [['KC_NO' for i in range(col_num)] for i in range(row_num)]
+        layout_matrix = [['KC_NO' for _ in range(col_num)] for _ in range(row_num)]
 
         for i, key in enumerate(kb_info_json['layouts'][layout_name]['layout']):
             row = key['matrix'][0]

@@ -181,7 +181,10 @@ milc_version = __VERSION__.split('.')
 if int(milc_version[0]) < 2 and int(milc_version[1]) < 4:
     requirements = Path('requirements.txt').resolve()
 
-    print(f'Your MILC library is too old! Please upgrade: python3 -m pip install -U -r {str(requirements)}')
+    print(
+        f'Your MILC library is too old! Please upgrade: python3 -m pip install -U -r {requirements}'
+    )
+
     exit(127)
 
 # Make sure we can run binaries in the same directory as our Python interpreter
@@ -225,7 +228,7 @@ for subcommand in subcommands:
     try:
         __import__(subcommand)
 
-    except (ImportError, ModuleNotFoundError) as e:
+    except ImportError as e:
         if safe_command:
             print(f'Warning: Could not import {subcommand}: {e.__class__.__name__}, {e}')
         else:

@@ -55,24 +55,23 @@ def collect_defines(filepath):
 
 
 def check_diffs(input_defs, reference_defs):
-    not_present_in_input = []
+    not_present_in_input = [
+        key for key in reference_defs["keys"] if key not in input_defs["dict"]
+    ]
+
+    for key in input_defs["keys"]:
+        if key not in input_defs["dict"]:
+            not_present_in_input.append(key)
+            continue
+
+    to_override = [
+        (key, input_defs["dict"][key])
+        for key in input_defs["keys"]
+        if key in reference_defs["keys"]
+        and input_defs["dict"][key] != reference_defs["dict"][key]
+    ]
+
     not_present_in_reference = []
-    to_override = []
-
-    for key in reference_defs["keys"]:
-        if key not in input_defs["dict"]:
-            not_present_in_input.append(key)
-            continue
-
-    for key in input_defs["keys"]:
-        if key not in input_defs["dict"]:
-            not_present_in_input.append(key)
-            continue
-
-    for key in input_defs["keys"]:
-        if key in reference_defs["keys"] and input_defs["dict"][key] != reference_defs["dict"][key]:
-            to_override.append((key, input_defs["dict"][key]))
-
     return (to_override, not_present_in_input, not_present_in_reference)
 
 

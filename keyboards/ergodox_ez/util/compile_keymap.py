@@ -324,8 +324,7 @@ def iter_raw_codes(layer_lines, filler, separator):
         if not line:
             continue
         codes = line.split(separator)
-        for code in codes[1:-1]:
-            yield code
+        yield from codes[1:-1]
 
 
 def iter_indexed_codes(raw_codes, key_indexes):

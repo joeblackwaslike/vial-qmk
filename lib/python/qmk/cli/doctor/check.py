@@ -109,10 +109,16 @@ def check_binaries():
 def check_binary_versions():
     """Check the versions of ESSENTIAL_BINARIES
     """
-    versions = []
-    for check in (_check_arm_gcc_version, _check_avr_gcc_version, _check_avrdude_version, _check_dfu_util_version, _check_dfu_programmer_version):
-        versions.append(check())
-    return versions
+    return [
+        check()
+        for check in (
+            _check_arm_gcc_version,
+            _check_avr_gcc_version,
+            _check_avrdude_version,
+            _check_dfu_util_version,
+            _check_dfu_programmer_version,
+        )
+    ]
 
 
 def check_submodules():

@@ -64,11 +64,15 @@ def quoteC(text):
 
 
 def getKeymapText(id, layer, columns, rows):
-    keymap = []
-    keymap.append("Layer %d" % id)
-    keymap.append("-------------------------------------------------               -------------------------------------------------")
-    keymap.append("|{0}|{1}|{2}|{3}|{4}|{5}|               |{6}|{7}|{8}|{9}|{10}|{11}|".format(*map(toLgd, layer[:12])))
-    keymap.append("-------------------------------------------------               -------------------------------------------------")
+    keymap = [
+        "Layer %d" % id,
+        '-------------------------------------------------               -------------------------------------------------',
+        "|{0}|{1}|{2}|{3}|{4}|{5}|               |{6}|{7}|{8}|{9}|{10}|{11}|".format(
+            *map(toLgd, layer[:12])
+        ),
+        '-------------------------------------------------               -------------------------------------------------',
+    ]
+
     keymap.append("|{0}|{1}|{2}|{3}|{4}|{5}|               |{6}|{7}|{8}|{9}|{10}|{11}|".format(*map(toLgd, layer[12:24])))
     keymap.append("-------------------------------------------------               -------------------------------------------------")
     keymap.append("|{0}|{1}|{2}|{3}|{4}|{5}|               |{6}|{7}|{8}|{9}|{10}|{11}|".format(*map(toLgd, layer[24:36])))
@@ -117,10 +121,7 @@ def writeKeymap(f_template, f_keymap, layers, columns, rows):
                         if r_counter or c_counter:
                             l_code += ","
                     l_code += '\n'
-                if layer + 1 != len(layout.layers):
-                    l_code += "\t),\n\n"
-                else:
-                    l_code += "\t)\n"
+                l_code += "\t),\n\n" if layer + 1 != len(layout.layers) else "\t)\n"
                 f_keymap.write(l_code)
         if doCopy:
             f_keymap.write(line)

@@ -28,7 +28,7 @@ if (waveFile.getsampwidth() != 2):
 length = waveFile.getnframes()
 out = "#define DAC_SAMPLE_CUSTOM_LENGTH " + str(length) + "\n\n"
 out += "static const dacsample_t dac_sample_custom[" + str(length) + "] = {"
-for i in range(0,length):
+for i in range(length):
     if (i % 8 == 0):
         out += "\n    "
     waveData = waveFile.readframes(1)

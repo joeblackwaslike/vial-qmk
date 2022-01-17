@@ -59,12 +59,11 @@ def template_c(keyboard):
             The keyboard to return a template for.
     """
     template_file = Path('keyboards/%s/templates/keymap.c' % keyboard)
-    if template_file.exists():
-        template = template_file.read_text(encoding='utf-8')
-    else:
-        template = DEFAULT_KEYMAP_C
-
-    return template
+    return (
+        template_file.read_text(encoding='utf-8')
+        if template_file.exists()
+        else DEFAULT_KEYMAP_C
+    )
 
 
 def _strip_any(keycode):
@@ -118,7 +117,7 @@ def keymap_completer(prefix, action, parser, parsed_args):
             return list_keymaps(keyboard)
 
     except Exception as e:
-        argcomplete.warn(f'Error: {e.__class__.__name__}: {str(e)}')
+        argcomplete.warn(f'Error: {e.__class__.__name__}: {e}')
         return []
 
     return []
@@ -353,11 +352,7 @@ def locate_keymap(keyboard, keymap):
     keymap_path = ''
 
     for dir in keyboard.split('/'):
-        if checked_dirs:
-            checked_dirs = '/'.join((checked_dirs, dir))
-        else:
-            checked_dirs = dir
-
+        checked_dirs = '/'.join((checked_dirs, dir)) if checked_dirs else dir
         keymap_dir = Path('keyboards') / checked_dirs / 'keymaps'
 
         if (keymap_dir / keymap / 'keymap.c').exists():
@@ -456,7 +451,7 @@ def _c_preprocess(path, stdin=DEVNULL):
     return pre_processed_keymap.stdout
 
 
-def _get_layers(keymap):  # noqa C901 : until someone has a good idea how to simplify/split up this code
+def _get_layers(keymap):    # noqa C901 : until someone has a good idea how to simplify/split up this code
     """ Find the layers in a keymap.c file.
 
     Args:
@@ -465,7 +460,7 @@ def _get_layers(keymap):  # noqa C901 : until someone has a good idea how to sim
     Returns:
         a dictionary containing the parsed keymap
     """
-    layers = list()
+    layers = []
     opening_braces = '({['
     closing_braces = ')}]'
     keymap_certainty = brace_depth = 0
@@ -503,7 +498,6 @@ def _get_layers(keymap):  # noqa C901 : until someone has a good idea how to sim
                         layer['keycodes'][-1] += kc
                     else:
                         layer['keycodes'].append(kc)
-
         # The keymaps array's signature:
         # const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS]
         #
@@ -565,13 +559,8 @@ def _get_layers(keymap):  # noqa C901 : until someone has a good idea how to sim
             if not layer['name']:
                 layer['name'] = line[1]
 
-        else:
-            # We only care about
-            # operators and such if we
-            # are inside an advanced keycode
-            # e.g.: MT(MOD_LCTL | MOD_LSFT, KC_ESC)
-            if is_adv_kc:
-                layer['keycodes'][-1] += line[1]
+        elif is_adv_kc:
+            layer['keycodes'][-1] += line[1]
 
     return layers
 
@@ -590,19 +579,13 @@ def parse_keymap_c(keymap_file, use_cpp=True):
         a dictionary containing the parsed keymap
     """
     if keymap_file == '-':
-        if use_cpp:
-            keymap_file = _c_preprocess(None, sys.stdin)
-        else:
-            keymap_file = sys.stdin.read()
+        keymap_file = _c_preprocess(None, sys.stdin) if use_cpp else sys.stdin.read()
+    elif use_cpp:
+        keymap_file = _c_preprocess(keymap_file)
     else:
-        if use_cpp:
-            keymap_file = _c_preprocess(keymap_file)
-        else:
-            keymap_file = keymap_file.read_text(encoding='utf-8')
+        keymap_file = keymap_file.read_text(encoding='utf-8')
 
-    keymap = dict()
-    keymap['layers'] = _get_layers(keymap_file)
-    return keymap
+    return {'layers': _get_layers(keymap_file)}
 
 
 def c2json(keyboard, keymap, keymap_file, use_cpp=True):
@@ -625,7 +608,7 @@ def c2json(keyboard, keymap, keymap_file, use_cpp=True):
     keymap_json = parse_keymap_c(keymap_file, use_cpp)
 
     dirty_layers = keymap_json.pop('layers', None)
-    keymap_json['layers'] = list()
+    keymap_json['layers'] = []
     for layer in dirty_layers:
         layer.pop('name')
         layout = layer.pop('layout')

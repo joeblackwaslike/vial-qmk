@@ -55,16 +55,15 @@ def update(submodules=None):
         cli.run(git_sync_cmd, check=True)
         cli.run(git_update_cmd, check=True)
 
-    else:
-        if isinstance(submodules, str):
-            # Update only a single submodule
-            git_sync_cmd.append(submodules)
-            git_update_cmd.append(submodules)
-            cli.run(git_sync_cmd, check=True)
-            cli.run(git_update_cmd, check=True)
+    elif isinstance(submodules, str):
+        # Update only a single submodule
+        git_sync_cmd.append(submodules)
+        git_update_cmd.append(submodules)
+        cli.run(git_sync_cmd, check=True)
+        cli.run(git_update_cmd, check=True)
 
-        else:
-            # Update submodules in a list
-            for submodule in submodules:
-                cli.run([*git_sync_cmd, submodule], check=True)
-                cli.run([*git_update_cmd, submodule], check=True)
+    else:
+        # Update submodules in a list
+        for submodule in submodules:
+            cli.run([*git_sync_cmd, submodule], check=True)
+            cli.run([*git_update_cmd, submodule], check=True)
