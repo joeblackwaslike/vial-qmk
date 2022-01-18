@@ -1,0 +1,167 @@
+[
+  {
+    "name": "Adelie Keymap [Base]",
+    "author": "Joe Black",
+    "switchMount": "cherry",
+    "switchBrand": "cherry",
+    "pcb": true
+  },
+  [
+    {
+      "c": "#777777",
+      "t": "#000000\n\n#1226de\n#a30d0d"
+    },
+    "Esc\n\n`\n\n\n\n~",
+    {
+      "c": "#cccccc",
+      "fa": [
+        0,
+        0,
+        0,
+        2
+      ]
+    },
+    "Q\n\n!\nF13",
+    "W\n\n@\nF14",
+    "E\n\n#\nF15",
+    "R\n\n$\nF16",
+    "T\n\n%\nF17",
+    "Y\n\n^\nF18",
+    "U\n\n&\nF19",
+    "I\n\n*\nF20",
+    "O\n\n-\nF21",
+    "P\n\n+\nF22",
+    "{\n[\n*\nF23",
+    "}\n]\n=\nF24",
+    {
+      "c": "#aaaaaa"
+    },
+    "<i class='mss mss-Unicode-BackSpace-DeleteLeft-Big-2'></i>\n\n|\n\\",
+    {
+      "x": 0.5,
+      "c": "#cccccc"
+    },
+    "<i class='kb kb-Multimedia-Volume-Up-1'></i>\n\n<i class='kb kb-Unicode-Screen-Bright'></i>"
+  ],
+  [
+    {
+      "c": "#aaaaaa",
+      "w": 1.25
+    },
+    "Tab\n\n\n\n\n\n<i class='kb kb-Line-Start-End'></i>",
+    {
+      "c": "#cccccc"
+    },
+    "A\n\n1\nF1",
+    "S\n\n2\nF2",
+    "D\n\n3\nF3",
+    {
+      "n": true
+    },
+    "F\n\n4\nF4",
+    "G\n\n5\nF5",
+    "H\n\n6\nF6",
+    {
+      "n": true
+    },
+    "J\n\n7\nF7",
+    "K\n\n8\nF8",
+    "L\n\n9\nF9",
+    ":\n;\n0\nF10",
+    "\"\n'\n-\nF11",
+    {
+      "c": "#777777",
+      "w": 1.75
+    },
+    "<i class='kb kb-Return-2'></i> Enter\n\n=\nF12",
+    {
+      "x": 0.5,
+      "c": "#cccccc"
+    },
+    "<i class='kb kb-Multimedia-Volume-Down-1'></i>\n\n<i class='kb kb-Unicode-Screen-Dim'></i>"
+  ],
+  [
+    {
+      "c": "#aaaaaa",
+      "w": 1.75
+    },
+    "Shift",
+    {
+      "c": "#cccccc"
+    },
+    "Z",
+    "X",
+    "C",
+    "V",
+    "B",
+    "N",
+    "M",
+    "<\n,",
+    ">\n.",
+    "?\n/",
+    {
+      "c": "#aaaaaa",
+      "w": 1.25
+    },
+    "Shift",
+    {
+      "x": 1.5,
+      "c": "#cccccc"
+    },
+    "<i class='kb kb-Multimedia-Mute-1'></i>\n\n<i class='fa fa-gear'></i>"
+  ],
+  [
+    {
+      "y": -0.75,
+      "x": 13.25,
+      "c": "#777777",
+      "fa": [
+        0,
+        0,
+        2,
+        2
+      ]
+    },
+    "<i class='kb kb-Arrows-Up'></i>\n\nPgUp"
+  ],
+  [
+    {
+      "y": -0.25,
+      "c": "#aaaaaa",
+      "w": 1.25
+    },
+    "Ctrl",
+    "Alt",
+    {
+      "w": 1.25
+    },
+    "Gui",
+    {
+      "w": 2.75
+    },
+    "MO(2)",
+    {
+      "w": 2.25
+    },
+    "3,6\nMO(3)",
+    {
+      "w": 1.25
+    },
+    "Gui",
+    "Alt",
+    {
+      "w": 1.25
+    },
+    "Ctrl"
+  ],
+  [
+    {
+      "y": -0.75,
+      "x": 12.25,
+      "c": "#777777"
+    },
+    "<i class='kb kb-Arrows-Left'></i>\n\nHome",
+    "<i class='kb kb-Arrows-Down'></i>\n\nPgDn",
+    "<i class='kb kb-Arrows-Right'></i>\n\nEnd"
+  ]
+]
