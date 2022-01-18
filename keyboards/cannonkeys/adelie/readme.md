@@ -28,6 +28,8 @@ To build vial-enabled firmware (with embedded keymap):
 $ make cannonkeys/adelie:vial
 ```
 
+## Releases
+For convenience, there are prebuilt binaries available to download under releases, see: https://github.com/joeblackwaslike/vial-qmk/releases/tag/vial, the can be flashed using QMK Toolbox.
 ## Environment
 See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
 
