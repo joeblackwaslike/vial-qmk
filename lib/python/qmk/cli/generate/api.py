@@ -14,7 +14,7 @@ from qmk.keyboard import find_readme, list_keyboards
 
 
 @cli.argument('-n', '--dry-run', arg_only=True, action='store_true', help="Don't write the data to disk.")
-@cli.subcommand('Creates a new keymap for the keyboard of your choosing', hidden=False if cli.config.user.developer else True)
+@cli.subcommand('Creates a new keymap for the keyboard of your choosing', hidden=not cli.config.user.developer)
 def generate_api(cli):
     """Generates the QMK API data.
     """

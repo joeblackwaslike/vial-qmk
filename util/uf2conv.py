@@ -47,12 +47,12 @@ familyid = 0x0
 
 
 def is_uf2(buf):
-    w = struct.unpack("<II", buf[0:8])
+    w = struct.unpack("<II", buf[:8])
     return w[0] == UF2_MAGIC_START0 and w[1] == UF2_MAGIC_START1
 
 def is_hex(buf):
     try:
-        w = buf[0:30].decode("utf-8")
+        w = buf[:30].decode("utf-8")
     except UnicodeDecodeError:
         return False
     if w[0] == ':' and re.match(b"^[:0-9a-fA-F\r\n]+$", buf):
@@ -67,7 +67,7 @@ def convert_from_uf2(buf):
     for blockno in range(numblocks):
         ptr = blockno * 512
         block = buf[ptr:ptr + 512]
-        hd = struct.unpack(b"<IIIIIIII", block[0:32])
+        hd = struct.unpack(b"<IIIIIIII", block[:32])
         if hd[0] != UF2_MAGIC_START0 or hd[1] != UF2_MAGIC_START1:
             print("Skipping block at " + ptr + "; bad magic")
             continue
@@ -141,7 +141,7 @@ class Block:
         hd = struct.pack("<IIIIIIII",
             UF2_MAGIC_START0, UF2_MAGIC_START1,
             flags, self.addr, 256, blockno, numblocks, familyid)
-        hd += self.bytes[0:256]
+        hd += self.bytes[:256]
         while len(hd) < 512 - 4:
             hd += b"\x00"
         hd += struct.pack("<I", UF2_MAGIC_END)
@@ -183,7 +183,7 @@ def convert_from_hex_to_uf2(buf):
                 i += 1
     numblocks = len(blocks)
     resfile = b""
-    for i in range(0, numblocks):
+    for i in range(numblocks):
         resfile += blocks[i].encode(i, numblocks)
     return resfile
 

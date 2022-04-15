@@ -41,7 +41,7 @@ def new_keyboard(cli):
     # Get keyboard name
     new_keyboard_name = None
     while not new_keyboard_name:
-        new_keyboard_name = cli.args.keyboard if cli.args.keyboard else question('Keyboard Name:')
+        new_keyboard_name = cli.args.keyboard or question('Keyboard Name:')
         if not validate_keyboard_name(new_keyboard_name):
             cli.log.error('Keyboard names must contain only {fg_cyan}lowercase a-z{fg_reset}, {fg_cyan}0-9{fg_reset}, and {fg_cyan}_{fg_reset}! Please choose a different name.')
 
@@ -63,7 +63,10 @@ def new_keyboard(cli):
             new_keyboard_name = None
 
     # Get keyboard type
-    keyboard_type = cli.args.type if cli.args.type else choice('Keyboard Type:', KEYBOARD_TYPES, default=0)
+    keyboard_type = cli.args.type or choice(
+        'Keyboard Type:', KEYBOARD_TYPES, default=0
+    )
+
 
     # Get username
     user_name = None

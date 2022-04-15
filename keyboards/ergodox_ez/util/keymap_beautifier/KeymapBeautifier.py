@@ -234,7 +234,7 @@ class KeymapBeautifier:
         if just == "right":
             keys = [k.strip().rjust(len(k)) for k in source_keys[key_from:key_to]]
         else:
-            keys = [k for k in source_keys[key_from:key_to]]
+            keys = list(source_keys[key_from:key_to])
 
         from_row, from_column = self.KEY_COORDINATES[self.output_layout][self.key_coordinates_counter]
         row_group = self.get_row_group(from_row)
@@ -247,14 +247,14 @@ class KeymapBeautifier:
                 columns_to_pad[c] = False
 
         # for rows with fewer columns that don't start with column 0, we need to insert leading spaces
-        spaces = 0
-        for c, v in columns_to_pad.items():
-            if not v:
-                continue
-            if (row_group,c) in self.column_max_widths:
-                spaces += self.column_max_widths[(row_group,c)] + len(", ")
-            else:
-                spaces += 0
+        spaces = sum(
+            self.column_max_widths[(row_group, c)] + len(", ")
+            if (row_group, c) in self.column_max_widths
+            else 0
+            for c, v in columns_to_pad.items()
+            if v
+        )
+
         return " " * spaces + ", ".join(keys) + ","
 
     def pretty_output_layer(self, layer, keys):
@@ -338,9 +338,11 @@ class KeymapBeautifier:
             formatted_key_symbols = ""
 
         # rid of the trailing comma
-        formatted_key_symbols = formatted_key_symbols[0:len(formatted_key_symbols)-2] + "\n"
-        s = "[{}] = {}({})".format(layer, self.output_layout, formatted_key_symbols)
-        return s
+        formatted_key_symbols = (
+            formatted_key_symbols[: len(formatted_key_symbols) - 2] + "\n"
+        )
+
+        return "[{}] = {}({})".format(layer, self.output_layout, formatted_key_symbols)
 
     # helper functions for pycparser
     def parser(self, src):
@@ -351,10 +353,7 @@ class KeymapBeautifier:
         # credit: https://stackoverflow.com/a/241506
         def replacer(match):
             s = match.group(0)
-            if s.startswith('/'):
-                return " " # note: a space and not an empty string
-            else:
-                return s
+            return " " if s.startswith('/') else s
         pattern = re.compile(
             r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"',
             re.DOTALL | re.MULTILINE
@@ -382,8 +381,7 @@ class KeymapBeautifier:
             return self.function_expr(raw)
 
     def layer_expr(self, layer):
-        transformed = [self.key_expr(k) for k in layer.expr.args.exprs]
-        return transformed
+        return [self.key_expr(k) for k in layer.expr.args.exprs]
 
 
 if __name__ == "__main__":

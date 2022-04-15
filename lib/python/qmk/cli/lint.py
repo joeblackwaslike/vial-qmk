@@ -52,7 +52,7 @@ def rules_mk_assignment_only(keyboard_path):
                         continuation = line[:-1]
                         continue
 
-                    if line and '=' not in line:
+                    if '=' not in line:
                         errors.append(f'Non-assignment code on line +{i} {rules_mk}: {line}')
 
     return errors
@@ -112,9 +112,10 @@ def lint(cli):
                 cli.log.error(assignment_error)
 
         # Keymap specific checks
-        if cli.config.lint.keymap:
-            if not keymap_check(kb, cli.config.lint.keymap):
-                ok = False
+        if cli.config.lint.keymap and not keymap_check(
+            kb, cli.config.lint.keymap
+        ):
+            ok = False
 
         # Report status
         if not ok:

@@ -23,7 +23,7 @@ waveFile = wave.open(sys.argv[1], 'r')
 length = waveFile.getnframes()
 out = "#define DAC_WAVETABLE_CUSTOM_LENGTH " + str(int(length / 256)) + "\n\n"
 out += "static const dacsample_t dac_wavetable_custom[" + str(int(length / 256)) + "][256] = {"
-for i in range(0,length):
+for i in range(length):
     if (i % 8 == 0):
         out += "\n    "
     if (i % 256 == 0):

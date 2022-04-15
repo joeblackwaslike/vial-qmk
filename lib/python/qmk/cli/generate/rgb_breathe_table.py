@@ -18,7 +18,7 @@ def breathing_center(value):
 
 def breathing_max(value):
     value = int(value)
-    if value in range(0, 256):
+    if value in range(256):
         return value
     else:
         raise ArgumentTypeError('Breathing max must be between 0 and 255')
@@ -33,11 +33,11 @@ def generate_rgb_breathe_table(cli):
     """Generate a rgblight_breathe_table.h file containing a breathing LUT for RGB Lighting (Underglow) feature.
     """
     breathe_values = [0] * 256
-    for pos in range(0, 256):
+    for pos in range(256):
         breathe_values[pos] = (int)((math.exp(math.sin((pos/255) * math.pi)) - cli.args.center / math.e) * (cli.args.max / (math.e - 1 / math.e)))  # noqa: yapf insists there be no whitespace around /
 
     values_template = ''
-    for s in range(0, 3):
+    for s in range(3):
         step = 1 << s
 
         values_template += '#if RGBLIGHT_BREATHE_TABLE_SIZE == {}\n'.format(256 >> s)

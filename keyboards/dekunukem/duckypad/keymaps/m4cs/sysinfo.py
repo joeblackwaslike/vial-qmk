@@ -34,7 +34,7 @@ usage      = 0x61
 device_interfaces = hid.enumerate(vendor_id, product_id)
 raw_hid_interfaces = [i for i in device_interfaces if i['usage_page'] == usage_page and i['usage'] == usage]
 
-if len(raw_hid_interfaces) == 0:
+if not raw_hid_interfaces:
     print('Couldnt find any interfaces')
     exit()
 

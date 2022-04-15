@@ -60,7 +60,7 @@ class KLE2xy(list):
             self.attrs(layout[0])
             layout = layout[1:]
 
-        for row_num, row in enumerate(layout):
+        for row in layout:
             self.append([])
 
             # Process the current row

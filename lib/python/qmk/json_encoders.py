@@ -22,10 +22,7 @@ class QMKJSONEncoder(json.JSONEncoder):
     def encode_decimal(self, obj):
         """Encode a decimal object.
         """
-        if obj == int(obj):  # I can't believe Decimal objects don't have .is_integer()
-            return int(obj)
-
-        return float(obj)
+        return int(obj) if obj == int(obj) else float(obj)
 
     def encode_list(self, obj):
         """Encode a list-like object.
@@ -33,12 +30,11 @@ class QMKJSONEncoder(json.JSONEncoder):
         if self.primitives_only(obj):
             return "[" + ", ".join(self.encode(element) for element in obj) + "]"
 
-        else:
-            self.indentation_level += 1
-            output = [self.indent_str + self.encode(element) for element in obj]
-            self.indentation_level -= 1
+        self.indentation_level += 1
+        output = [self.indent_str + self.encode(element) for element in obj]
+        self.indentation_level -= 1
 
-            return "[\n" + ",\n".join(output) + "\n" + self.indent_str + "]"
+        return "[\n" + ",\n".join(output) + "\n" + self.indent_str + "]"
 
     def encode(self, obj):
         """Encode keymap.json objects for QMK.
@@ -74,18 +70,16 @@ class InfoJSONEncoder(QMKJSONEncoder):
     def encode_dict(self, obj):
         """Encode info.json dictionaries.
         """
-        if obj:
-            if self.indentation_level == 4:
-                # These are part of a layout, put them on a single line.
-                return "{ " + ", ".join(f"{self.encode(key)}: {self.encode(element)}" for key, element in sorted(obj.items())) + " }"
-
-            else:
-                self.indentation_level += 1
-                output = [self.indent_str + f"{json.dumps(key)}: {self.encode(value)}" for key, value in sorted(obj.items(), key=self.sort_dict)]
-                self.indentation_level -= 1
-                return "{\n" + ",\n".join(output) + "\n" + self.indent_str + "}"
-        else:
+        if not obj:
             return "{}"
+        if self.indentation_level == 4:
+            # These are part of a layout, put them on a single line.
+            return "{ " + ", ".join(f"{self.encode(key)}: {self.encode(element)}" for key, element in sorted(obj.items())) + " }"
+
+        self.indentation_level += 1
+        output = [self.indent_str + f"{json.dumps(key)}: {self.encode(value)}" for key, value in sorted(obj.items(), key=self.sort_dict)]
+        self.indentation_level -= 1
+        return "{\n" + ",\n".join(output) + "\n" + self.indent_str + "}"
 
     def sort_dict(self, key):
         """Forces layout to the back of the sort order.
