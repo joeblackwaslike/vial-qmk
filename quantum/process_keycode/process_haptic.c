@@ -18,6 +18,7 @@
 #include "quantum_keycodes.h"
 #include "action_tapping.h"
 #include "usb_device_state.h"
+#include "qmk_settings.h"
 
 __attribute__((weak)) bool get_haptic_enabled_key(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -26,7 +27,7 @@ __attribute__((weak)) bool get_haptic_enabled_key(uint16_t keycode, keyrecord_t 
             if (record->tap.count == 0) return false;
             break;
         case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:
-            if (record->tap.count != TAPPING_TOGGLE) return false;
+            if (record->tap.count != QS_tapping_toggle) return false;
             break;
         case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
             if (record->tap.count == 0) return false;
@@ -34,9 +35,6 @@ __attribute__((weak)) bool get_haptic_enabled_key(uint16_t keycode, keyrecord_t 
         case KC_LEFT_CTRL ... KC_RIGHT_GUI:
         case QK_MOMENTARY ... QK_MOMENTARY_MAX:
         case QK_LAYER_MOD ... QK_LAYER_MOD_MAX:
-#endif
-#ifdef NO_HAPTIC_FN
-        case KC_FN0 ... KC_FN31:
 #endif
 #ifdef NO_HAPTIC_ALPHA
         case KC_A ... KC_Z:
@@ -90,43 +88,43 @@ __attribute__((weak)) bool get_haptic_enabled_key(uint16_t keycode, keyrecord_t 
 bool process_haptic(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         switch (keycode) {
-            case HPT_ON:
+            case QK_HAPTIC_ON:
                 haptic_enable();
                 break;
-            case HPT_OFF:
+            case QK_HAPTIC_OFF:
                 haptic_disable();
                 break;
-            case HPT_TOG:
+            case QK_HAPTIC_TOGGLE:
                 haptic_toggle();
                 break;
-            case HPT_RST:
+            case QK_HAPTIC_RESET:
                 haptic_reset();
                 break;
-            case HPT_FBK:
+            case QK_HAPTIC_FEEDBACK_TOGGLE:
                 haptic_feedback_toggle();
                 break;
-            case HPT_BUZ:
+            case QK_HAPTIC_BUZZ_TOGGLE:
                 haptic_buzz_toggle();
                 break;
-            case HPT_MODI:
+            case QK_HAPTIC_MODE_NEXT:
                 haptic_mode_increase();
                 break;
-            case HPT_MODD:
+            case QK_HAPTIC_MODE_PREVIOUS:
                 haptic_mode_decrease();
                 break;
-            case HPT_DWLI:
+            case QK_HAPTIC_DWELL_UP:
                 haptic_dwell_increase();
                 break;
-            case HPT_DWLD:
+            case QK_HAPTIC_DWELL_DOWN:
                 haptic_dwell_decrease();
                 break;
-            case HPT_CONT:
+            case QK_HAPTIC_CONTINUOUS_TOGGLE:
                 haptic_toggle_continuous();
                 break;
-            case HPT_CONI:
+            case QK_HAPTIC_CONTINUOUS_UP:
                 haptic_cont_increase();
                 break;
-            case HPT_COND:
+            case QK_HAPTIC_CONTINUOUS_DOWN:
                 haptic_cont_decrease();
                 break;
         }

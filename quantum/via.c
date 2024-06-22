@@ -22,6 +22,10 @@
 #    error "DYNAMIC_KEYMAP_ENABLE is not enabled"
 #endif
 
+#ifndef VIAL_ENABLE
+#error Compiling VIA keymaps is not supported with the vial-qmk repo, please use qmk_firmware instead, or set VIAL_ENABLE=yes
+#endif
+
 // If VIA_CUSTOM_LIGHTING_ENABLE is not defined, then VIA_QMK_BACKLIGHT_ENABLE is set
 // if BACKLIGHT_ENABLE is set, so handling of QMK Backlight values happens here by default.
 // if VIA_CUSTOM_LIGHTING_ENABLE is defined, then VIA_QMK_BACKLIGHT_ENABLE must be explicitly
@@ -38,6 +42,10 @@
 #    define VIA_QMK_RGBLIGHT_ENABLE
 #endif
 
+#if defined(RGB_MATRIX_ENABLE) && !defined(VIA_QMK_RGBLIGHT_ENABLE) && !defined(VIA_CUSTOM_LIGHTING_ENABLE) && !defined(VIALRGB_ENABLE)
+#    define VIA_QMK_RGB_MATRIX_ENABLE
+#endif
+
 #include "quantum.h"
 
 #include "via.h"
@@ -45,8 +53,7 @@
 #include "raw_hid.h"
 #include "dynamic_keymap.h"
 #include "eeprom.h"
-#include "version.h"  // for QMK_BUILDDATE used in EEPROM magic
-#include "via_ensure_keycode.h"
+#include "version.h" // for QMK_BUILDDATE used in EEPROM magic
 
 #ifdef VIAL_ENABLE
 #include "vial.h"
@@ -67,6 +74,12 @@ void via_qmk_rgblight_set_value(uint8_t *data);
 void via_qmk_rgblight_get_value(uint8_t *data);
 #endif
 
+#if defined(VIA_QMK_RGB_MATRIX_ENABLE)
+void via_qmk_rgb_matrix_set_value(uint8_t *data);
+void via_qmk_rgb_matrix_get_value(uint8_t *data);
+void eeconfig_update_rgb_matrix(void);
+#endif
+
 // Can be called in an overriding via_init_kb() to test if keyboard level code usage of
 // EEPROM is invalid and use/save defaults.
 bool via_eeprom_is_valid(void) {
@@ -75,7 +88,7 @@ bool via_eeprom_is_valid(void) {
     uint8_t magic1 = (BUILD_ID >> 8) & 0xFF;
     uint8_t magic2 = (BUILD_ID >> 16) & 0xFF;
 #else
-    char *  p      = QMK_BUILDDATE;  // e.g. "2019-11-05-11:29:54"
+    char *  p      = QMK_BUILDDATE; // e.g. "2019-11-05-11:29:54"
     uint8_t magic0 = ((p[2] & 0x0F) << 4) | (p[3] & 0x0F);
     uint8_t magic1 = ((p[5] & 0x0F) << 4) | (p[6] & 0x0F);
     uint8_t magic2 = ((p[8] & 0x0F) << 4) | (p[9] & 0x0F);
@@ -92,7 +105,7 @@ void via_eeprom_set_valid(bool valid) {
     uint8_t magic1 = (BUILD_ID >> 8) & 0xFF;
     uint8_t magic2 = (BUILD_ID >> 16) & 0xFF;
 #else
-    char *  p      = QMK_BUILDDATE;  // e.g. "2019-11-05-11:29:54"
+    char *  p      = QMK_BUILDDATE; // e.g. "2019-11-05-11:29:54"
     uint8_t magic0 = ((p[2] & 0x0F) << 4) | (p[3] & 0x0F);
     uint8_t magic1 = ((p[5] & 0x0F) << 4) | (p[6] & 0x0F);
     uint8_t magic2 = ((p[8] & 0x0F) << 4) | (p[9] & 0x0F);
@@ -116,6 +129,7 @@ void via_init(void) {
     // Let keyboard level test EEPROM valid state,
     // but not set it valid, it is done here.
     via_init_kb();
+    via_set_layout_options_kb(via_get_layout_options());
 
     // If the EEPROM has the magic, the data is good.
     // OK to load from EEPROM.
@@ -151,7 +165,10 @@ uint32_t via_get_layout_options(void) {
     return value;
 }
 
+__attribute__((weak)) void via_set_layout_options_kb(uint32_t value) {}
+
 void via_set_layout_options(uint32_t value) {
+    via_set_layout_options_kb(value);
     // Start at the least significant byte
     void *target = (void *)(VIA_EEPROM_LAYOUT_OPTIONS_ADDR + VIA_EEPROM_LAYOUT_OPTIONS_SIZE - 1);
     for (uint8_t i = 0; i < VIA_EEPROM_LAYOUT_OPTIONS_SIZE; i++) {
@@ -165,38 +182,13 @@ void via_set_layout_options(uint32_t value) {
 bool process_record_via(uint16_t keycode, keyrecord_t *record) {
     // Handle macros
     if (record->event.pressed) {
-        if (keycode >= MACRO00 && keycode <= MACRO15) {
-            uint8_t id = keycode - MACRO00;
+        if (keycode >= QK_MACRO && keycode <= QK_MACRO_MAX) {
+            uint8_t id = keycode - QK_MACRO;
             dynamic_keymap_macro_send(id);
             return false;
         }
     }
 
-    // TODO: ideally this would be generalized and refactored into
-    // QMK core as advanced keycodes, until then, the simple case
-    // can be available here to keyboards using VIA
-    switch (keycode) {
-        case FN_MO13:
-            if (record->event.pressed) {
-                layer_on(1);
-                update_tri_layer(1, 2, 3);
-            } else {
-                layer_off(1);
-                update_tri_layer(1, 2, 3);
-            }
-            return false;
-            break;
-        case FN_MO23:
-            if (record->event.pressed) {
-                layer_on(2);
-                update_tri_layer(1, 2, 3);
-            } else {
-                layer_off(2);
-                update_tri_layer(1, 2, 3);
-            }
-            return false;
-            break;
-    }
     return true;
 }
 
@@ -324,10 +316,13 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
 #if defined(VIALRGB_ENABLE)
             vialrgb_set_value(data, length);
 #endif
+#if defined(VIA_QMK_RGB_MATRIX_ENABLE)
+            via_qmk_rgb_matrix_set_value(command_data);
+#endif
 #if defined(VIA_CUSTOM_LIGHTING_ENABLE)
             raw_hid_receive_kb(data, length);
 #endif
-#if !defined(VIA_QMK_BACKLIGHT_ENABLE) && !defined(VIA_QMK_RGBLIGHT_ENABLE) && !defined(VIALRGB_ENABLE) && !defined(VIA_CUSTOM_LIGHTING_ENABLE)
+#if !defined(VIA_QMK_BACKLIGHT_ENABLE) && !defined(VIA_QMK_RGBLIGHT_ENABLE) && !defined(VIALRGB_ENABLE) && !defined(VIA_CUSTOM_LIGHTING_ENABLE) && !defined(VIA_QMK_RGB_MATRIX_ENABLE)
             // Return the unhandled state
             *command_id = id_unhandled;
 #endif
@@ -343,10 +338,13 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
 #if defined(VIALRGB_ENABLE)
             vialrgb_get_value(data, length);
 #endif
+#if defined(VIA_QMK_RGB_MATRIX_ENABLE)
+            via_qmk_rgb_matrix_get_value(command_data);
+#endif
 #if defined(VIA_CUSTOM_LIGHTING_ENABLE)
             raw_hid_receive_kb(data, length);
 #endif
-#if !defined(VIA_QMK_BACKLIGHT_ENABLE) && !defined(VIA_QMK_RGBLIGHT_ENABLE) && !defined(VIALRGB_ENABLE) && !defined(VIA_CUSTOM_LIGHTING_ENABLE)
+#if !defined(VIA_QMK_BACKLIGHT_ENABLE) && !defined(VIA_QMK_RGBLIGHT_ENABLE) && !defined(VIALRGB_ENABLE) && !defined(VIA_CUSTOM_LIGHTING_ENABLE) && !defined(VIA_QMK_RGB_MATRIX_ENABLE)
             // Return the unhandled state
             *command_id = id_unhandled;
 #endif
@@ -362,10 +360,13 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
 #if defined(VIALRGB_ENABLE)
             vialrgb_save(data, length);
 #endif
+#if defined(VIA_QMK_RGB_MATRIX_ENABLE)
+            eeconfig_update_rgb_matrix();
+#endif
 #if defined(VIA_CUSTOM_LIGHTING_ENABLE)
             raw_hid_receive_kb(data, length);
 #endif
-#if !defined(VIA_QMK_BACKLIGHT_ENABLE) && !defined(VIA_QMK_RGBLIGHT_ENABLE) && !defined(VIALRGB_ENABLE) && !defined(VIA_CUSTOM_LIGHTING_ENABLE)
+#if !defined(VIA_QMK_BACKLIGHT_ENABLE) && !defined(VIA_QMK_RGBLIGHT_ENABLE) && !defined(VIALRGB_ENABLE) && !defined(VIA_CUSTOM_LIGHTING_ENABLE) && !defined(VIA_QMK_RGB_MATRIX_ENABLE)
             // Return the unhandled state
             *command_id = id_unhandled;
 #endif
@@ -390,7 +391,7 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
         }
         case id_dynamic_keymap_macro_get_buffer: {
             uint16_t offset = (command_data[0] << 8) | command_data[1];
-            uint16_t size   = command_data[2];  // size <= 28
+            uint16_t size   = command_data[2]; // size <= 28
             if (size <= 28)
                 dynamic_keymap_macro_get_buffer(offset, size, &command_data[3]);
             break;
@@ -402,7 +403,7 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
                 goto skip;
 #endif
             uint16_t offset = (command_data[0] << 8) | command_data[1];
-            uint16_t size   = command_data[2];  // size <= 28
+            uint16_t size   = command_data[2]; // size <= 28
             if (size <= 28)
                 dynamic_keymap_macro_set_buffer(offset, size, &command_data[3]);
             break;
@@ -417,14 +418,14 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
         }
         case id_dynamic_keymap_get_buffer: {
             uint16_t offset = (command_data[0] << 8) | command_data[1];
-            uint16_t size   = command_data[2];  // size <= 28
+            uint16_t size   = command_data[2]; // size <= 28
             if (size <= 28)
                 dynamic_keymap_get_buffer(offset, size, &command_data[3]);
             break;
         }
         case id_dynamic_keymap_set_buffer: {
             uint16_t offset = (command_data[0] << 8) | command_data[1];
-            uint16_t size   = command_data[2];  // size <= 28
+            uint16_t size   = command_data[2]; // size <= 28
             if (size <= 28)
                 dynamic_keymap_set_buffer(offset, size, &command_data[3]);
             break;
@@ -512,7 +513,7 @@ void via_qmk_backlight_set_value(uint8_t *data) {
     }
 }
 
-#endif  // #if defined(VIA_QMK_BACKLIGHT_ENABLE)
+#endif // #if defined(VIA_QMK_BACKLIGHT_ENABLE)
 
 #if defined(VIA_QMK_RGBLIGHT_ENABLE)
 
@@ -568,4 +569,87 @@ void via_qmk_rgblight_set_value(uint8_t *data) {
     }
 }
 
-#endif  // #if defined(VIA_QMK_RGBLIGHT_ENABLE)
+#endif // #if defined(VIA_QMK_RGBLIGHT_ENABLE)
+
+#if defined(VIA_QMK_RGB_MATRIX_ENABLE)
+
+// VIA supports only 4 discrete values for effect speed; map these to some
+// useful speed values for RGB Matrix.
+enum speed_values {
+    RGBLIGHT_SPEED_0 = UINT8_MAX / 16, // not 0 to avoid really slow effects
+    RGBLIGHT_SPEED_1 = UINT8_MAX / 4,
+    RGBLIGHT_SPEED_2 = UINT8_MAX / 2,     // matches the default value
+    RGBLIGHT_SPEED_3 = UINT8_MAX / 4 * 3, // UINT8_MAX is really fast
+};
+
+static uint8_t speed_from_rgblight(uint8_t rgblight_speed) {
+    switch (rgblight_speed) {
+        case 0:
+            return RGBLIGHT_SPEED_0;
+        case 1:
+            return RGBLIGHT_SPEED_1;
+        case 2:
+        default:
+            return RGBLIGHT_SPEED_2;
+        case 3:
+            return RGBLIGHT_SPEED_3;
+    }
+}
+
+static uint8_t speed_to_rgblight(uint8_t rgb_matrix_speed) {
+    if (rgb_matrix_speed < ((RGBLIGHT_SPEED_0 + RGBLIGHT_SPEED_1) / 2)) {
+        return 0;
+    } else if (rgb_matrix_speed < ((RGBLIGHT_SPEED_1 + RGBLIGHT_SPEED_2) / 2)) {
+        return 1;
+    } else if (rgb_matrix_speed < ((RGBLIGHT_SPEED_2 + RGBLIGHT_SPEED_3) / 2)) {
+        return 2;
+    } else {
+        return 3;
+    }
+}
+
+void via_qmk_rgb_matrix_get_value(uint8_t *data) {
+    uint8_t *value_id   = &(data[0]);
+    uint8_t *value_data = &(data[1]);
+    switch (*value_id) {
+        case id_qmk_rgblight_brightness:
+            value_data[0] = rgb_matrix_get_val();
+            break;
+        case id_qmk_rgblight_effect:
+            value_data[0] = rgb_matrix_get_mode();
+            break;
+        case id_qmk_rgblight_effect_speed:
+            value_data[0] = speed_to_rgblight(rgb_matrix_get_speed());
+            break;
+        case id_qmk_rgblight_color:
+            value_data[0] = rgb_matrix_get_hue();
+            value_data[1] = rgb_matrix_get_sat();
+            break;
+    }
+}
+
+void via_qmk_rgb_matrix_set_value(uint8_t *data) {
+    uint8_t *value_id   = &(data[0]);
+    uint8_t *value_data = &(data[1]);
+    switch (*value_id) {
+        case id_qmk_rgblight_brightness:
+            rgb_matrix_sethsv_noeeprom(rgb_matrix_get_hue(), rgb_matrix_get_sat(), value_data[0]);
+            break;
+        case id_qmk_rgblight_effect:
+            rgb_matrix_mode_noeeprom(value_data[0]);
+            if (value_data[0] == 0) {
+                rgb_matrix_disable_noeeprom();
+            } else {
+                rgb_matrix_enable_noeeprom();
+            }
+            break;
+        case id_qmk_rgblight_effect_speed:
+            rgb_matrix_set_speed_noeeprom(speed_from_rgblight(value_data[0]));
+            break;
+        case id_qmk_rgblight_color:
+            rgb_matrix_sethsv_noeeprom(value_data[0], value_data[1], rgb_matrix_get_val());
+            break;
+    }
+}
+
+#endif // #if defined(VIA_QMK_RGB_MATRIX_ENABLE)

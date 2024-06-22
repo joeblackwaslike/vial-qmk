@@ -24,7 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define DYNAMIC_KEYMAP_LAYER_COUNT 4
 #define TAPPING_TERM 180
-#define IGNORE_MOD_TAP_INTERRUPT
 
 //#define USE_MATRIX_I2C
 #ifdef KEYBOARD_crkbd_rev1_legacy
@@ -39,13 +38,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // #define EE_HANDS
 
 #define USE_SERIAL_PD2
-
-#undef RGBLED_NUM
-#define RGBLIGHT_ANIMATIONS
-#define RGBLED_NUM 27
-#define RGBLIGHT_LIMIT_VAL 120
-#define RGBLIGHT_HUE_STEP 10
-#define RGBLIGHT_SAT_STEP 17
-#define RGBLIGHT_VAL_STEP 17
+#ifdef RGBLIGHT_ENABLE
+#    undef RGBLIGHT_LED_COUNT
+#    define RGBLIGHT_ANIMATIONS
+#    define RGBLIGHT_LED_COUNT 54
+#    undef RGBLED_SPLIT
+#    define RGBLED_SPLIT \
+        { 27, 27 }
+#    define RGBLIGHT_LIMIT_VAL 120
+#    define RGBLIGHT_HUE_STEP  10
+#    define RGBLIGHT_SAT_STEP  17
+#    define RGBLIGHT_VAL_STEP  17
+#endif
 
 #define OLED_FONT_H "keyboards/crkbd/lib/glcdfont.c"

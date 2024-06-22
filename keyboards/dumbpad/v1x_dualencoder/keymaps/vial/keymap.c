@@ -47,16 +47,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     \-----------------------------------------------------'
     */
     [1] = LAYOUT(
-                    _______,     _______,     _______,      RESET,
+                    _______,     _______,     _______,      QK_BOOT,
                     _______,     _______,     _______,      KC_KP_PLUS,
                     _______,     _______,     _______,      KC_KP_MINUS,
-        KC_LOCK,    _______,     _______,     _______,      KC_EQL
+        QK_LOCK,    _______,     _______,     _______,      KC_EQL
     ),
     [2] = LAYOUT(
                     _______,     _______,     _______,      _______,
                     _______,     _______,     _______,      _______,
                     _______,     _______,     _______,      _______,
-        KC_LOCK,    _______,     _______,     _______,      _______
+        QK_LOCK,    _______,     _______,     _______,      _______
     ),
     [3] = LAYOUT(
                     _______,     _______,     _______,      _______,
@@ -145,3 +145,10 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     }
     return true;
 }
+
+const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
+    [0] = { ENCODER_CCW_CW(KC_A, KC_B), ENCODER_CCW_CW(KC_C, KC_D) },
+    [1] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+    [2] = { ENCODER_CCW_CW(KC_A, KC_B), ENCODER_CCW_CW(KC_C, KC_D) },
+    [3] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+};

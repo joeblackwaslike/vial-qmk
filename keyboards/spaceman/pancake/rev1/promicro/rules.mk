@@ -1,11 +1,5 @@
-# MCU name
-MCU = atmega32u4
-
-# Bootloader selection
-BOOTLOADER = caterina
-
 # Build Options
-#   comment out to disable the options.
+#   change yes to no to disable
 #
 BOOTMAGIC_ENABLE = yes      # Enable Bootmagic Lite
 MOUSEKEY_ENABLE  = no	# Mouse keys
@@ -16,8 +10,6 @@ NKRO_ENABLE = yes           # Enable N-Key Rollover
 BACKLIGHT_ENABLE  = no  # Custom backlighting code is used, so this should not be enabled
 AUDIO_ENABLE  = no # This can be enabled if a speaker is connected to the expansion port. Not compatible with RGBLIGHT below
 RGBLIGHT_ENABLE  = no # This can be enabled if a ws2812 strip is connected to the expansion port.
-
-LAYOUTS = ortho_4x12 planck_mit
 
 # Disable unsupported hardware
 RGBLIGHT_SUPPORTED = no

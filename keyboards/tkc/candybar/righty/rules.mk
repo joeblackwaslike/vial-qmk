@@ -1,13 +1,6 @@
-# MCU name
-MCU = STM32F072
-
-# Bootloader selection
-BOOTLOADER = stm32-dfu
-
 # Build Options
-#   comment out to disable the options.
+#   change yes to no to disable
 #
-# LTO_ENABLE = yes
 LTO_ENABLE = yes
 BACKLIGHT_ENABLE = no
 BOOTMAGIC_ENABLE = yes      # Enable Bootmagic Lite
@@ -20,5 +13,3 @@ AUDIO_ENABLE = no
 RGBLIGHT_ENABLE = no
 
 
-# Enter lower-power sleep mode when on the ChibiOS idle thread
-OPT_DEFS += -DCORTEX_ENABLE_WFI_IDLE=TRUE

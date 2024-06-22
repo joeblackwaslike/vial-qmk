@@ -1,11 +1,5 @@
-# MCU name
-MCU = atmega32u4
-
-# Bootloader selection
-BOOTLOADER = atmel-dfu
-
 # Build Options
-#   comment out to disable the options.
+#   change yes to no to disable
 #
 BOOTMAGIC_ENABLE = yes      # Enable Bootmagic Lite
 MOUSEKEY_ENABLE = yes	# Mouse keys
@@ -19,5 +13,5 @@ RGBLIGHT_ENABLE = no
 CUSTOM_MATRIX = yes
 
 # project specific files
-QUANTUM_LIB_SRC += i2c_master.c
+I2C_DRIVER_REQUIRED = yes
 SRC += matrix.c

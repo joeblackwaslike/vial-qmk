@@ -1,11 +1,5 @@
-# MCU name
-MCU = atmega32u4
-
-# Bootloader selection
-BOOTLOADER = caterina
-
 # Build Options
-#   comment out to disable the options.
+#   change yes to no to disable
 #
 BOOTMAGIC_ENABLE = yes      # Enable Bootmagic Lite
 MOUSEKEY_ENABLE = yes    # Mouse keys
@@ -20,6 +14,4 @@ UNICODE_ENABLE = yes     # Unicode
 AUDIO_ENABLE = no        # Audio output
 
 OLED_ENABLE = yes
-OLED_DRIVER = SSD1306 # Enable OLED display support
 ENCODER_ENABLE = yes     # Enable encoder support
-

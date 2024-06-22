@@ -1,11 +1,5 @@
-# MCU name
-MCU = atmega32u4
-
-# Bootloader selection
-BOOTLOADER = halfkay
-
 # Build Options
-#   comment out to disable the options.
+#   change yes to no to disable
 #
 BOOTMAGIC_ENABLE = no       # Enable Bootmagic Lite
 MOUSEKEY_ENABLE  = yes # Mouse keys
@@ -19,5 +13,5 @@ AUDIO_ENABLE = no           # Audio output
 RGBLIGHT_ENABLE = no
 
 # project specific files
-SRC = i2c_master.c \
-	  matrix.c
+SRC = matrix.c
+I2C_DRIVER_REQUIRED = yes
